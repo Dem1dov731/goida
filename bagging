@@ -1,0 +1,27 @@
+from sklearn.ensemble import StackingClassifier
+from sklearn.linear_model import LogisticRegression
+from catboost import CatBoostClassifier
+from sklearn.model_selection import train_test_split
+
+# Данные
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Определяем базовые модели
+estimators = [
+    ('catboost1', CatBoostClassifier(iterations=500, depth=6, learning_rate=0.05, verbose=0)),
+    ('catboost2', CatBoostClassifier(iterations=1000, depth=4, learning_rate=0.1, verbose=0)),
+    # Можно добавить другие модели, например, XGBoost или LightGBM
+]
+
+# Стэкинг: базовые модели + мета-модель
+stacking_model = StackingClassifier(
+    estimators=estimators,
+    final_estimator=LogisticRegression(),  # Мета-модель
+    cv=5
+)
+
+# Обучение стэкинг модели
+stacking_model.fit(X_train, y_train)
+
+# Оценка модели
+print(f"Accuracy: {stacking_model.score(X_test, y_test)}")
