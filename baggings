@@ -1,0 +1,18 @@
+from catboost import CatBoostClassifier, Pool
+
+# Данные
+train_data = Pool(data=X_train, label=y_train)
+test_data = Pool(data=X_test, label=y_test)
+
+# Модель с параметром bootstrap
+model = CatBoostClassifier(
+    iterations=1000,
+    depth=6,
+    learning_rate=0.1,
+    bootstrap_type='Bayesian',  # Используем багаж
+    bagging_temperature=1,  # Контролирует степень bagging
+    random_seed=42,
+    verbose=200
+)
+
+model.fit(train_data, eval_set=test_data)
