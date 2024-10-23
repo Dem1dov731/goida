@@ -1,0 +1,26 @@
+import numpy as np
+from catboost import CatBoostClassifier
+from sklearn.model_selection import train_test_split
+
+# Данные
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Обучаем несколько моделей
+model1 = CatBoostClassifier(iterations=500, learning_rate=0.05, depth=6, verbose=0)
+model2 = CatBoostClassifier(iterations=1000, learning_rate=0.1, depth=4, verbose=0)
+
+model1.fit(X_train, y_train)
+model2.fit(X_train, y_train)
+
+# Усредняем предсказания
+preds1 = model1.predict_proba(X_test)[:, 1]
+preds2 = model2.predict_proba(X_test)[:, 1]
+
+# Усреднение предсказаний моделей
+blended_preds = (preds1 + preds2) / 2
+
+# Оценка модели
+from sklearn.metrics import accuracy_score
+blended_preds_binary = (blended_preds > 0.5).astype(int)
+accuracy = accuracy_score(y_test, blended_preds_binary)
+print(f"Blended Accuracy: {accuracy}")
